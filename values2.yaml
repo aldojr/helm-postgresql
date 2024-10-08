@@ -1,0 +1,70 @@
+# kubeVersion: "v1.23.6"
+image:
+  registry: docker.io
+  repository: bitnami/postgresql
+  tag: 15.4.0-debian-11-r56
+architecture: replication
+auth:
+  database: pms_db
+  password: eluon123
+  username: pms
+  postgresPassword: eluon123
+  replicationUsername: postgres
+  # replicationPassword: vring@eluon
+  #replicationUsername: pms
+  replicationPassword: eluon123
+
+metrics:
+  enabled: true
+primary:
+  resources:
+    limits:
+      memory: 2Gi
+      cpu: 2
+    requests:
+      memory: 256Mi
+      cpu: 250m
+  persistence:
+    # existingClaim: vposgresql
+    storageClass: nfs-client
+    size: 20Gi
+  extraVolumeMounts:
+    - name: tz-volume
+      mountPath: /etc/localtime
+      readOnly: true
+  extraVolumes:
+    - name: tz-volume
+      hostPath:
+        path: /etc/localtime
+replication:
+  applicationName: pms
+  synchronousCommit: "on"
+  numSynchronousReplicas: 1
+readReplicas:
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2Gi
+      cpu: 2
+    requests:
+      memory: 256Mi
+      cpu: 250m
+  persistence:
+    # existingClaim: vposgresql-backup
+    storageClass: nfs-client
+    size: 20Gi
+  extraVolumeMounts:
+    - name: tz-volume
+      mountPath: /etc/localtime
+      readOnly: true
+  extraVolumes:
+    - name: tz-volume
+      hostPath:
+        path: /etc/localtime
+volumePermissions:
+  enabled: true
+# backup:
+#   enabled: true
+#   cronjob:
+#     storage:
+#       existingClaim: vposgresql-backup
